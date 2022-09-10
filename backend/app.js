@@ -3,6 +3,7 @@ const mongoose = require('mongoose'); // importation de mongoose
 const app = express(); // crée application express
 
 const sauceRoutes = require('./route/sauce');
+const userRoutes = require('./route/user');
 
  // importation du schéma crée dans model/sauce.js dans app.js 
 
@@ -40,6 +41,7 @@ app.use((req, res, next) => {
 // d'envoyer des requêtes avec les méthodes mentionnées ( GET ,POST , etc.).
 
 app.use('/api/sauce', sauceRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
 

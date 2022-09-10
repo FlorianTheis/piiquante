@@ -31,6 +31,6 @@ exports.getOneSauce = (req, res, next) => {
 
 exports.getAllSauce = (req, res, next) => {
     Sauce.find()
-      .then((sauces) => res.status(200).json(sauces))
+      .then((sauce) => res.status(200).json(sauce))
       .catch((error) => res.status(400).json({ error }));
   };
