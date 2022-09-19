@@ -1,20 +1,24 @@
+// importation du package Express
 const express = require('express');
-const mongoose = require('mongoose'); // importation de mongoose
+// importation du package Mongoose (mongoDB)
+const mongoose = require('mongoose'); 
+// importation de path qui va servir à définir les chemins.
+const path = require('path');
+
 const app = express(); // crée application express
 
 const sauceRoutes = require('./route/sauce');
 const userRoutes = require('./route/user');
-const path = require('path');
+
+require("dotenv").config(); // importation du module dotenv (pour le fichier envrionement)
+
 
  // importation du schéma crée dans model/sauce.js dans app.js 
 
-mongoose.connect(
-    'mongodb+srv://sydaima:MDQEVHhD8o7c8TNg@cluster0.qvvkciy.mongodb.net/?retryWrites=true&w=majority',
-    {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    }
-  )
+
+
+// le fichier env à pour but de stockés les données sensibles pour que personne ne puisse accéder à la base de données, c'est une sécurité
+mongoose.connect(process.env.dbID) //dbID étant la variable contenant le lien de connection de mongoDB qui se trouve dans le fichier .env
 
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
@@ -23,13 +27,14 @@ mongoose.connect(
 
 app.use(express.json()); // intercepte toutes les requetes qui contiennent du json
 
+// qui peut acceder à l'API
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-  res.setHeader(
+  res.setHeader( // les headers autorisés
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'
   );
-  res.setHeader(
+  res.setHeader( // les méthodes possibles
     'Access-Control-Allow-Methods',
     'GET, POST, PUT, DELETE, PATCH, OPTIONS'
   );
@@ -37,14 +42,15 @@ app.use((req, res, next) => {
 });
 
 // Ces headers permettent :
-// d'accéder à notre API depuis n'importe quelle origine ( '*' ) ;
+// d'accéder à notre API depuis l'adresse http://localhost:4200
 // d'ajouter les headers mentionnés aux requêtes envoyées vers notre API (Origin , X-Requested-With , etc.) ;
 // d'envoyer des requêtes avec les méthodes mentionnées ( GET ,POST , etc.).
 
+// gestions des principales routes
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
 
-// middleware est une fonction dans une app express qui reçoit la requete et la réponse, qui les gère et qui peut passer l'exécution a une prochaine fonction
+

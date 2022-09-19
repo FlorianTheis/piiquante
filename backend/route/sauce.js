@@ -16,4 +16,7 @@ router.get('/:id', auth, sauceCtrl.getOneSauce ); // route prendre une seule sau
 
 router.get('/',  auth, sauceCtrl.getAllSauce); // route récupérer toutes les sauces
 
+// LIKE ET DISLIKE D'UNE SAUCE => Défini le like ou dislike mis par l'utilisateur. 
+router.post("/:id/like", auth, sauceCtrl.rateSauce);
+
 module.exports = router;
