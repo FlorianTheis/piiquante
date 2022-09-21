@@ -22,22 +22,22 @@ exports.createSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-  const sauceObject = req.file
+  const sauceObject = req.file 
     ? {
-        ...JSON.parse(req.body.sauce),
+        ...JSON.parse(req.body.sauce), //on modifier les données et on ajoute la nouvelle image
         imageUrl: `${req.protocol}://${req.get('host')}/images/${
           req.file.filename
         }`,
       }
     : { ...req.body };
 
-  delete sauceObject._userId;
+  delete sauceObject._userId; //suppression du champ userId envoyé par le client
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       if (sauce.userId != req.auth.userId) {
         res.status(401).json({ message: 'Non-autorisé' });
       } else {
-        Sauce.updateOne(
+        Sauce.updateOne( //on applique les paramètres de sauceObject
           { _id: req.params.id },
           { ...sauceObject, _id: req.params.id }
         )
