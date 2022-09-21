@@ -1,63 +1,72 @@
 const Sauce = require('../model/sauce');
 
 exports.createSauce = (req, res, next) => {
-  const sauceObject = JSON.parse(req.body.sauce)
-    delete sauceObject._id;
-    delete sauceObject._userId;
-    const sauce = new Sauce({
-      ...sauceObject,
-      userId: req.auth.userId,
-      likes: 0,
-      dislikes: 0,
-      userDisliked: [],
-      userLiked: [],
-      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}` // propriété de l'objet requete protocol -> nom d'hote -> nom de fichier (donné par multer)
-    });
-    sauce
-      .save()
-      .then(() => res.status(201).json({ message: 'Sauce enregistré !' }))
-      .catch((error) => res.status(400).json({ error }));
-  };
+  const sauceObject = JSON.parse(req.body.sauce);
+  delete sauceObject._id;
+  delete sauceObject._userId;
+  const sauce = new Sauce({
+    ...sauceObject,
+    userId: req.auth.userId,
+    likes: 0,
+    dislikes: 0,
+    userDisliked: [],
+    userLiked: [],
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${
+      req.file.filename
+    }`, // propriété de l'objet requete protocol -> nom d'hote -> nom de fichier (donné par multer)
+  });
+  sauce
+    .save()
+    .then(() => res.status(201).json({ message: 'Sauce enregistré !' }))
+    .catch((error) => res.status(400).json({ error }));
+};
 
 exports.modifySauce = (req, res, next) => {
-    const sauceObject = req.file ? {
-      ...JSON.parse(req.body.sauce),
-      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
-    } : { ...req.body};
+  const sauceObject = req.file
+    ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${
+          req.file.filename
+        }`,
+      }
+    : { ...req.body };
 
-    delete sauceObject._userId;
-    Sauce.findOne({_id: req.params.id})
+  delete sauceObject._userId;
+  Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       if (sauce.userId != req.auth.userId) {
-        res.status(401).json({ message : 'Non-autorisé'});
+        res.status(401).json({ message: 'Non-autorisé' });
       } else {
-        Sauce.updateOne({_id: req.params.id}, {...sauceObject, _id: req.params.id})
-        .then(() => res.status(200).json({message : 'Sauce Modifié !'}))
-        .catch(error => res.status(401).json({ error}));
+        Sauce.updateOne(
+          { _id: req.params.id },
+          { ...sauceObject, _id: req.params.id }
+        )
+          .then(() => res.status(200).json({ message: 'Sauce Modifié !' }))
+          .catch((error) => res.status(401).json({ error }));
       }
     })
     .catch((error) => {
       res.status(400).json({ error });
-    })
-  };
+    });
+};
 
 exports.deleteSauce = (req, res, next) => {
-    Sauce.deleteOne({ _id: req.params.id })
-      .then(() => res.status(200).json({ message: 'Sauce supprimé !' }))
-      .catch((error) => res.status(400).json({ error }));
-  };
+  Sauce.deleteOne({ _id: req.params.id })
+    .then(() => res.status(200).json({ message: 'Sauce supprimé !' }))
+    .catch((error) => res.status(400).json({ error }));
+};
 
 exports.getOneSauce = (req, res, next) => {
-    Sauce.findOne({ _id: req.params.id })
-      .then((sauce) => res.status(200).json(sauce))
-      .catch((error) => res.status(404).json({ error }));
-  };
+  Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => res.status(200).json(sauce))
+    .catch((error) => res.status(404).json({ error }));
+};
 
 exports.getAllSauce = (req, res, next) => {
-    Sauce.find()
-      .then((sauce) => res.status(200).json(sauce))
-      .catch((error) => res.status(400).json({ error }));
-  };
+  Sauce.find()
+    .then((sauce) => res.status(200).json(sauce))
+    .catch((error) => res.status(400).json({ error }));
+};
 
 // Fonction qui permet de liker ou disliker une sauce . On l'exporte afin de pouvoir l'utiliser dans d'autres fichiers. //
 exports.rateSauce = (req, res, next) => {
@@ -74,7 +83,7 @@ exports.rateSauce = (req, res, next) => {
         )
           .then(() =>
             // Si la sauce est liké envoi du code 200 et du message correspondant. //
-            res.status(200).json({ message: "Super! Cette sauce a été likée." })
+            res.status(200).json({ message: 'Super! Cette sauce a été likée.' })
           )
           // S'il y a une erreur envoi du code 400 et de l'erreur. //
           .catch((error) => res.status(400).json({ error }));
@@ -89,7 +98,7 @@ exports.rateSauce = (req, res, next) => {
           { $inc: { likes: -1 }, $pull: { usersLiked: req.body.userId } }
         )
           // Si le like est retiré envoi du code 200 et du message correspondant. //
-          .then(() => res.status(200).json({ message: "Aucun choix saisi." }))
+          .then(() => res.status(200).json({ message: 'Aucun choix saisi.' }))
           // S'il y a une erreur envoi du code 400 et de l'erreur. //
           .catch((error) => res.status(400).json({ error }));
       } else if (
@@ -106,7 +115,7 @@ exports.rateSauce = (req, res, next) => {
           .then(() =>
             res
               .status(200)
-              .json({ message: "Oups! Cette sauce a été dislikée." })
+              .json({ message: 'Oups! Cette sauce a été dislikée.' })
           )
           // S'il y a une erreur envoi du code 400 et de l'erreur. //
           .catch((error) => res.status(400).json({ error }));
@@ -121,7 +130,7 @@ exports.rateSauce = (req, res, next) => {
           { $inc: { dislikes: -1 }, $pull: { usersDisliked: req.body.userId } }
         )
           // Si le dislike est retiré envoi du code 200 et du message correspondant. //
-          .then(() => res.status(200).json({ message: "Aucun choix saisi." }))
+          .then(() => res.status(200).json({ message: 'Aucun choix saisi.' }))
           // S'il y a une erreur envoi du code 400 et de l'erreur. //
           .catch((error) => res.status(400).json({ error }));
       } else {
